@@ -1,4 +1,4 @@
-#   Teknologiprojekt øving 1: Robotarium experiment with Motion planning and Control
+#   Teknologiprosjekt øving 1: Robotarium experiment with Motion planning and Control
 #   Student: Mathias Mellemstuen
 #   Python interpreter: 3.8.2 64 bit
 
