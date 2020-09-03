@@ -1,3 +1,7 @@
+#   Teknologiprojekt øving 1: Robotarium experiment with Motion planning and Control
+#   Student: Mathias Mellemstuen
+#   Python interpreter: 3.8.2 64 bit
+
 import rps.robotarium as robotarium
 import time
 import numpy as np
@@ -23,9 +27,9 @@ def robotLogic():
     r.step()
 
 # Initially sets the velocity for defining 'global velocity', not doing this will throw an error. 
-setVelocity(0,0)
+setVelocity(-1,0)
 
-#Looping the robot logic while the program is running
+# Looping the robot logic
 while running: robotLogic()
 
 r.call_at_scripts_end()
