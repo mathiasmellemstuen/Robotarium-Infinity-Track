@@ -62,14 +62,19 @@ def setVelocity(linear, angular):
     linearSpeed = float(linear)
     angularSpeed = float(angular) 
     velocity = np.array([linearSpeed, angularSpeed])
-    velocity.shape = (2,1)
 
-# Funcion is getting looped as long as running = True
+i = 0
+def calculateNextVelocity():
+    if(i + 1 > path[0].__len__
+
+# Function is getting looped as long as running = True
 def robotLogic(): 
     position = r.get_poses()
-    r.set_velocities(numberOfRobots, velocity)
+    calculateNextVelocity()
+    v = velocity
+    v.shape = (2,1)
+    r.set_velocities(numberOfRobots, v)
     r.step()
-
 
 
 # Creating the full path and assigning it to 'path'
@@ -79,7 +84,7 @@ createFullPath()
 plotTrack()
 
 # Initially sets the velocity for defining 'global velocity', not doing this will throw an error. 
-setVelocity(0,0)
+setVelocity(0.0,0.0)
 
 # Looping the robot logic
 while running: robotLogic()
