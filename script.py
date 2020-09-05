@@ -8,8 +8,8 @@ import numpy as np
 import math
 import random
 
-startingX = random.uniform(-1.0, 1.0)
-startingY = random.uniform(-1.0, 1.0)
+startingX = random.uniform(-0.5, 0.5)
+startingY = random.uniform(-0.5, 0.5)
 startingAngle = random.uniform(-math.pi, math.pi)
 initialConditions = np.array(np.mat(str(startingX) +';' + str(startingY) + ';' + str(startingAngle)))
 running = True
