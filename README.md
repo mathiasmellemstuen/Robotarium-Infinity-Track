@@ -9,7 +9,7 @@ Your reports should not be more than 2 pages long.  Please structure your report
 - State your motion planning algorithm•Summarize results of simulation (and possible redesign)
 - Summarize results of experiment at Robotarium
 ## Installation on Ubuntu and other Debian based distributions
-git clone https://github.com/robotarium/robotarium_python_simulator.git
-pip3 install .
+- git clone https://github.com/robotarium/robotarium_python_simulator.git
+- pip3 install .
 
 Try sudo apt-get install pip3 or sudo apt-get install git if it failes. Use pip instead of pip3 if you are using Python 2.x interpreter instead of Python 3.x
