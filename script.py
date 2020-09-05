@@ -6,13 +6,22 @@ import rps.robotarium as robotarium
 import time
 import numpy as np
 import math
+import random
 
+startingX = random.uniform(-1.0, 1.0)
+startingY = random.uniform(-1.0, 1.0)
+startingAngle = random.uniform(-math.pi, math.pi)
+initialConditions = np.array(np.mat(str(startingX) +';' + str(startingY) + ';' + str(startingAngle)))
 running = True
 numberOfRobots = 1
 lineWidth = 1
-initialConditions = np.array(np.mat('-1;0.00;0'))
-currentTarget = 0
-acceptableDistanceToTarget = 0.05
+currentTarget = 0 # The current target/waypoint
+acceptableDistanceToTarget = 0.05 # The robot is changing to the next waypoint if it is within this value to the current waypoint.
+acceptableAngleError = 0.1 # Radians
+maxSpeed = 0.3
+turningSpeed = 1 
+brakeDistance = 0.3 # Distance before the robot is beginning to break.
+acceptableAngelErrorAtBrakeDistance = 0.1
 
 r = robotarium.Robotarium(number_of_robots=numberOfRobots, show_figure=True, initial_conditions=initialConditions,sim_in_real_time=True)
 
@@ -30,7 +39,7 @@ def createCircle(x, y, fromRadians, toRadians, step, normalizeMin, normalizeMax)
     return circle
 
 
-def createFullPath(): 
+def createInfinityPath(): 
     global path
 
     path = [
@@ -57,10 +66,7 @@ def createFullPath():
     path[0].append(0)
     path[1].append(0)
 
-
-def plotLine(x1, y1, x2, y2):
-    r.axes.plot([x1, x2],[y1, y2],color='blue',linewidth = 1)
-
+# Plotting a red line between the points in the path. 
 def plotTrack():
     r.axes.plot(path[0],path[1],color='red',linewidth = lineWidth)
 
@@ -72,9 +78,11 @@ def setVelocity(linear, angular):
     angularSpeed = float(angular) 
     velocity = np.array([linearSpeed, angularSpeed])
 
+# Calculates and returning the shortest distance between two points in a two dimentional space utilizing pythagoras sentence. 
 def calculateDistanceBetweenTwoPoints(x1,y1,x2,y2):
     return math.sqrt(math.pow(x2 - x1,2) + math.pow(y2 - y1, 2))
 
+# Returning the shortest direction to rotate to meet the target angle. Returns either 1/-1. Does also return 0 when the angles are the same. 
 def shortestWayBetweenTwoAngles(angle1, angle2): 
     angle1 = float(angle1)
     angle2 = float(angle2)
@@ -88,13 +96,25 @@ def shortestWayBetweenTwoAngles(angle1, angle2):
     if angle1 > angle2 and angle1 - angle2 > math.pi: 
         return 1.0
 
-    return 0
+    return 0.0
 
 def calculateAngleBetweenPoints(x1,y1,x2,y2):
     deltaX = x2 - x1
     deltaY = y2 - y1
     return math.atan2(deltaY, deltaX)
-        
+
+def convertAngle0To2Pi(a):
+    return a if a >= 0.0 else 2 * math.pi + a
+
+def calculateAngleDifference(angle1, angle2):
+    return math.pi - abs(abs(angle1 - angle2) - math.pi); 
+
+def calculateSpeedModifierBasedOnAngleDifferenceAndDistance(angle, targetAngle, distanceToTarget):
+    difference = float(calculateAngleDifference(angle, targetAngle))
+    angleDistErrModifier = acceptableAngelErrorAtBrakeDistance / difference if distanceToTarget < brakeDistance and acceptableAngelErrorAtBrakeDistance < difference else 1
+    
+    return (maxSpeed * (difference / ((2.0*math.pi)))) / angleDistErrModifier
+    
 def calculateNextVelocity(position):
     
     global currentTarget
@@ -109,13 +129,13 @@ def calculateNextVelocity(position):
     targetX = path[0][currentTarget]
     targetY = path[1][currentTarget]
 
-    targetAngle = calculateAngleBetweenPoints(position[0], position[1], targetX, targetY)
-    targetAngle = targetAngle if targetAngle >= 0.0 else 2 * math.pi + targetAngle
-    angle = position[2] if position[2] >= 0.0 else 2 * math.pi + position[2]
+    targetAngle = convertAngle0To2Pi(calculateAngleBetweenPoints(position[0], position[1], targetX, targetY))
+    angle = convertAngle0To2Pi(position[2])
 
-    setVelocity(0.3, 1 * shortestWayBetweenTwoAngles(angle, targetAngle))
+    speed = maxSpeed - calculateSpeedModifierBasedOnAngleDifferenceAndDistance(angle, targetAngle, distanceToTarget)
+    if speed < 0: speed = 0
     
-    #plotLine(position[0], position[1], targetX, targetY)
+    setVelocity(speed,0 if calculateAngleDifference(angle, targetAngle) < acceptableAngleError else turningSpeed * shortestWayBetweenTwoAngles(angle, targetAngle))
 
 # Function is getting looped as long as running = True
 def robotLogic():
@@ -129,20 +149,10 @@ def robotLogic():
 
 
 # Creating the full path and assigning it to 'path'
-createFullPath()
-
-
-
-print("Angle in radians: ")
-print(calculateAngleBetweenPoints(0.0, 0.0, 0.0, 0.0))
+createInfinityPath()
 
 # Plotting the track/path background
 plotTrack()
-
-# Initially sets the velocity for defining 'global velocity', not doing this will throw an error. 
-setVelocity(0.2, 0)
-
-print(shortestWayBetweenTwoAngles(0.5,(2.0 * math.pi) - 0.5))
 
 # Looping the robot logic
 while running: robotLogic()
