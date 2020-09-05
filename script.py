@@ -72,28 +72,28 @@ def setVelocity(linear, angular):
     angularSpeed = float(angular) 
     velocity = np.array([linearSpeed, angularSpeed])
 
-
-def calculateVectorLength(x1,y1,x2,y2):
+def calculateDistanceBetweenTwoPoints(x1,y1,x2,y2):
     return math.sqrt(math.pow(x2 - x1,2) + math.pow(y2 - y1, 2))
 
-def calculateAngleBetweenPoints(x1,y1,x2,y2):
-    
-    if x1 is x2 and y1 is y2: return 0 # Checking if the points are at the same coordinate, returning 0 if that's the case. 
+def shortestWayBetweenTwoAngles(angle1, angle2): 
+    angle1 = float(angle1)
+    angle2 = float(angle2)
 
-    vec1Length = calculateVectorLength(x1, y1, x2, y2)
-    vec2Length = calculateVectorLength(x1, y1, x2, y1) # This vector will always point either towards 0 rad or pi rad (enhetssirkel), it will always be a straight line. That's why both y parameters are y1.
-    
-    if y2 <= y1:
-        if x2 < x1:
-            return -math.pi + math.acos(vec2Length / vec1Length)
-        if x2 >= x1:
-            return -math.acos(vec2Length / vec1Length)
-    
-    if(y2 > y1):
-        if(x2 < x1):
-            return (math.pi * 0.5) + math.acos(vec2Length / vec1Length)
-        if(x2 >= x1):
-            return math.acos(vec2Length / vec1Length)
+    if angle1 < angle2 and angle2 - angle1 <= math.pi:
+        return 1.0
+    if angle1 < angle2 and angle2 - angle1 > math.pi:
+        return -1.0
+    if angle1 > angle2 and angle1 - angle2 <= math.pi:
+        return -1.0
+    if angle1 > angle2 and angle1 - angle2 > math.pi: 
+        return 1.0
+
+    return 0
+
+def calculateAngleBetweenPoints(x1,y1,x2,y2):
+    deltaX = x2 - x1
+    deltaY = y2 - y1
+    return math.atan2(deltaY, deltaX)
         
 def calculateNextVelocity(position):
     
@@ -102,7 +102,7 @@ def calculateNextVelocity(position):
     targetX = path[0][currentTarget]
     targetY = path[1][currentTarget]
 
-    distanceToTarget = calculateVectorLength(targetX,targetY,position[0],position[1])    
+    distanceToTarget = calculateDistanceBetweenTwoPoints(targetX,targetY,position[0],position[1])    
     
     currentTarget = currentTarget if not (distanceToTarget < acceptableDistanceToTarget) else (currentTarget + 1) if (currentTarget is not len(path[0]) - 1) else 0
 
@@ -110,11 +110,12 @@ def calculateNextVelocity(position):
     targetY = path[1][currentTarget]
 
     targetAngle = calculateAngleBetweenPoints(position[0], position[1], targetX, targetY)
-    errorAngle = position[2] - targetAngle;
-    setVelocity(0.05, errorAngle)
-    print(targetAngle)
+    targetAngle = targetAngle if targetAngle >= 0.0 else 2 * math.pi + targetAngle
+    angle = position[2] if position[2] >= 0.0 else 2 * math.pi + position[2]
+
+    setVelocity(0.1, 0.5 * shortestWayBetweenTwoAngles(angle, targetAngle))
     
-    plotLine(position[0], position[1], targetX, targetY)
+    #plotLine(position[0], position[1], targetX, targetY)
 
 # Function is getting looped as long as running = True
 def robotLogic():
@@ -140,6 +141,8 @@ plotTrack()
 
 # Initially sets the velocity for defining 'global velocity', not doing this will throw an error. 
 setVelocity(0.2, 0)
+
+print(shortestWayBetweenTwoAngles(0.5,(2.0 * math.pi) - 0.5))
 
 # Looping the robot logic
 while running: robotLogic()
