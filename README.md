@@ -1,4 +1,4 @@
-# Robotarium-Infinity-Track
+# Robotarium Infinity Track
 
 You should design, simulate and run a simple robotic experiment on the Robotarium platform at: https://www.robotarium.gatech.edu/ The essence  of  this  task  is  motion  planning  and  control.   You  should  have  a  simple  robot  movearound in a pattern that resembles the shape of the infinity symbol∞, as shown in the figure above.The exact shape of your course need not be the same as shown in this figure.  It is enough that itlooks like the infinity symbol.Make sure that the intersection point of your course is at the origin (0,0) , and make sure that therobot never moves away from the origin by more than 2 metres.This assignment must be done individually. You are allowed to freely discuss with anyone. Youare allowed to design the motion planning and control algorithms in collaboration with others. But youmust write your own code, your own simulations and your own submission to the Robotarium platform.
 ### 2.  Submitting your work
