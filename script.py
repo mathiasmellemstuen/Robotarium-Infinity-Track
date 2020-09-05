@@ -113,7 +113,7 @@ def calculateNextVelocity(position):
     targetAngle = targetAngle if targetAngle >= 0.0 else 2 * math.pi + targetAngle
     angle = position[2] if position[2] >= 0.0 else 2 * math.pi + position[2]
 
-    setVelocity(0.1, 0.5 * shortestWayBetweenTwoAngles(angle, targetAngle))
+    setVelocity(0.3, 1 * shortestWayBetweenTwoAngles(angle, targetAngle))
     
     #plotLine(position[0], position[1], targetX, targetY)
 
