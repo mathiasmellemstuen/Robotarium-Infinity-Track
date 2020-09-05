@@ -5,9 +5,10 @@ You should design, simulate and run a simple robotic experiment on the Robotariu
 ### 2.  Submitting your work
 You must submit two files on the Canvas page:(1)  One PDF file which is the report of your effort and result.  This PDF file can be no more thantwo pages long, and should be structured along the lines suggested in the next section.(2)  One video file in the MP4 format showing the movement produced by your Motion planningand Control algorithm.  The video must have a duration of less than 2 minutes !Note that only files in the PDF format and mp4 format shall be accepted.Deadline for submissionis 14:00 on Wednesday the 23rd of September
 ### 3.  Structure of report
-Your reports should not be more than 2 pages long.  Please structure your report into separate partsthat:
+Your reports should not be more than 2 pages long.  Please structure your report into separate parts that:
 - State the task undertaken
-- State your motion planning algorithm•Summarize results of simulation (and possible redesign)
+- State your motion planning algorithm
+- Summarize results of simulation (and possible redesign)
 - Summarize results of experiment at Robotarium
 ## Installation on Ubuntu and other Debian based distributions
 - git clone https://github.com/robotarium/robotarium_python_simulator.git
