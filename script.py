@@ -12,22 +12,29 @@ startingX = random.uniform(-0.5, 0.5)
 startingY = random.uniform(-0.5, 0.5)
 startingAngle = random.uniform(-math.pi, math.pi)
 initialConditions = np.array(np.mat(str(startingX) +';' + str(startingY) + ';' + str(startingAngle)))
-running = True
-numberOfRobots = 1
-lineWidth = 1
+running = True # Script is running as long as this is true. 
+numberOfRobots = 1 # Code needs modification for handling more than one robot. 
+lineWidth = 1 # The width of the red line on the track.
 currentTarget = 0 # The current target/waypoint
 acceptableDistanceToTarget = 0.05 # The robot is changing to the next waypoint if it is within this value to the current waypoint.
-acceptableAngleError = 0.1 # Radians
-maxSpeed = 0.3
-turningSpeed = 1 
+acceptableAngleError = 0.1 # In radians
+maxSpeed = 0.3 # The bot's max speed.
+turningSpeed = 1 # The bot's max angular speed. 
 brakeDistance = 0.3 # Distance before the robot is beginning to break.
 acceptableAngelErrorAtBrakeDistance = 0.1
+verbose = True # Prints to terminal if this is true. 
 
 r = robotarium.Robotarium(number_of_robots=numberOfRobots, show_figure=True, initial_conditions=initialConditions,sim_in_real_time=True)
 
+# Normalizing a value between min - max
 def normalize(min, max, value): 
     return min + (max - min) * value 
 
+# Creating a part of a circle fromRadians -> toRadians
+# x, y: starting position of the circle
+# step: Radians until the next point on the circle is added. A small value gives great precision
+# normalizeMin, normalizeMax: Deciding the size of the circle with normalizing the value. 
+# Returning: Two dimentional array with the points (x,y values)
 def createCircle(x, y, fromRadians, toRadians, step, normalizeMin, normalizeMax): 
     current = fromRadians
     circle = [[],[]]
@@ -38,7 +45,7 @@ def createCircle(x, y, fromRadians, toRadians, step, normalizeMin, normalizeMax)
 
     return circle
 
-
+# Creating the inifinity track and assigning 'path' variable to it. 
 def createInfinityPath(): 
     global path
 
@@ -73,10 +80,14 @@ def plotTrack():
 # setVelocity sets the linear and angular velocity of the robot
 def setVelocity(linear, angular): 
     global velocity
-    
     linearSpeed = float(linear)
     angularSpeed = float(angular) 
     velocity = np.array([linearSpeed, angularSpeed])
+
+    #For debugging:
+    if(verbose):
+        print("Linear velocity:", linear)
+        print("Angular velocity:", angular)
 
 # Calculates and returning the shortest distance between two points in a two dimentional space utilizing pythagoras sentence. 
 def calculateDistanceBetweenTwoPoints(x1,y1,x2,y2):
@@ -98,23 +109,28 @@ def shortestWayBetweenTwoAngles(angle1, angle2):
 
     return 0.0
 
+# Calculate the angle between two points in radians.
 def calculateAngleBetweenPoints(x1,y1,x2,y2):
     deltaX = x2 - x1
     deltaY = y2 - y1
     return math.atan2(deltaY, deltaX)
 
+# Converting radians at the form of 0 -> pi -> -pi -> -0 to 0 -> 2pi
 def convertAngle0To2Pi(a):
     return a if a >= 0.0 else 2 * math.pi + a
 
+# Returning the shortest difference between two angles
 def calculateAngleDifference(angle1, angle2):
-    return math.pi - abs(abs(angle1 - angle2) - math.pi); 
+    return math.pi - abs(abs(angle1 - angle2) - math.pi)
 
+# Robot slow down / speed up based on the angle and distance to the next target. 
 def calculateSpeedModifierBasedOnAngleDifferenceAndDistance(angle, targetAngle, distanceToTarget):
     difference = float(calculateAngleDifference(angle, targetAngle))
     angleDistErrModifier = acceptableAngelErrorAtBrakeDistance / difference if distanceToTarget < brakeDistance and acceptableAngelErrorAtBrakeDistance < difference else 1
     
     return (maxSpeed * (difference / ((2.0*math.pi)))) / angleDistErrModifier
-    
+
+# Calculating and setting both angular and linear velocity. 
 def calculateNextVelocity(position):
     
     global currentTarget
