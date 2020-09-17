@@ -18,7 +18,7 @@ lineWidth = 1 # The width of the red line on the track.
 currentTarget = 0 # The current target/waypoint
 acceptableDistanceToTarget = 0.05 # The robot is changing to the next waypoint if it is within this value to the current waypoint.
 acceptableAngleError = 0.1 # In radians
-maxSpeed = 0.3 # The bot's max speed.
+maxSpeed = 0.0 # The bot's max speed.
 turningSpeed = 1 # The bot's max angular speed. 
 brakeDistance = 0.3 # Distance before the robot is beginning to break.
 acceptableAngelErrorAtBrakeDistance = 0.1
@@ -161,8 +161,6 @@ def robotLogic():
     v.shape = (2,1)
     r.set_velocities(numberOfRobots, v)
     r.step()
-
-
 
 # Creating the full path and assigning it to 'path'
 createInfinityPath()
