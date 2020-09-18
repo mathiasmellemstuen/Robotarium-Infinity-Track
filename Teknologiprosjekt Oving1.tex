@@ -66,15 +66,16 @@ Python code can be deployed on a real robot when the code is thoroughly tested w
 The robot should follow a track which resembles the shape of the infinity symbol.
 \\\\
 \textbf{Creating the Infinity track}\\
-
-The array with all the coordinates could then be two-dimentional and defined like this: 
+Since the robot in this case always know it's current (x,y) coordinates and angular rotation at all times,
+it would make sense to store the track as an array of (x,y) coordinates and then use trigonometry to find
+the distance and angle between the robot and the current waypoint.The array with all the coordinates can then be two-dimentional and defined like this: 
 \begin{python}
-    path = [
-        [0.0, ...], # Array with x coordinates
-        [0.0, ...]  # Array with y coordinates
-    ]
+path = [
+    [0.0, ...], # Array with x coordinates
+    [0.0, ...]  # Array with y coordinates
+]
 \end{python}
-The Robatarium API has a function that allows you to plot lines between points. This function can be used to draw the track with the path variable like this: 
+The Robatarium API has a function that allows you to plot lines between points. This function can be used to draw the track with the path variable. 
 \begin{python}
 # Plotting a red line between the points in the path. 
 def plotTrack():
@@ -96,32 +97,52 @@ def createCircle(x, y, fromRadians, toRadians, step, normalizeMin, normalizeMax)
         current += step
 return circle
 \end{python}
+\begin{minipage}[r]{0.5\textwidth}
 Now it's possible to hardcode the straight lines and then use the \pythoninline{createCircle} function to create the curved part of the infinity symbol, then append everything in the right order to \pythoninline{path}.
-The end results after doing this looks like this: 
-\begin{figure}[h!]
-    \includegraphics[width=0.5\linewidth]{infinitypicture.png}
-\end{figure}
-\newpage
-
+The end results after doing this looks like this.
+\end{minipage}
+\begin{minipage}[l]{0.5\textwidth}
+\includegraphics[width=\linewidth]{infinitypicture.png}
+\end{minipage}
+. \\
 \textbf{Motion control algorithm} \\
-Since the robot in this case always know it's current (x,y) coordinates and angular rotation at all times,
-it would make sense to store the track as an array of (x,y) coordinates and then use trigonometry to find
-the distance and angle between the robot and the current waypoint.\\
-When the robot is on the current waypoint (n), the current waypoint can then be changed to (n+1).\\
-The distance between the robot and the target can be calculated with the pythagoras sentence, $\alpha = \sqrt{\Delta x^{2} + \Delta y^{2}}$.
-The equation can be written like this in python: 
-\begin{python}
+There is many ways of approaching this problem. It can be done relativly simple since we are not considereing collision detection and the robot does always have track of it's position and it's current waypoint position.
+Because of this, we only need an algorithm that calculates vertical and algular velocity of the robot so the robot moves towards the current waypoint. When the robot then has approached a acceptable distance the the current waypoint, then change to the next waypoint in the path and run the algorithm again. 
+This can be represented in an algorithm like this: 
+\begin{enumerate}
+    \item When the robot is within an acceptable distance to the current waypoint (n), change the current waypoint to (n+1).
+    \item Calculate the current distance and the angle between the robot and the waypoint. The distance between the robot and the target can be calculated with the pythagoras sentence, $\alpha = \sqrt{\Delta x^{2} + \Delta y^{2}}$.
+    The equation can be written like this in python: 
+    \begin{python}
 def calculateDistanceBetweenTwoPoints(x1,y1,x2,y2):
     return math.sqrt(math.pow(x2 - x1,2) + math.pow(y2 - y1, 2))
-\end{python}
-The shortest angle in radians between the robot and the waypoint can be defined like this: $\alpha = atan2(\Delta y, \Delta x)$.
-This can be translated to this python function:
-\begin{python}
+    \end{python}
+    The shortest angle in radians between the robot and the waypoint can be defined like this: $\alpha = atan2(\Delta y, \Delta x)$.
+    This can be translated to this python function:
+    \begin{python}
 def calculateAngleBetweenPoints(x1,y1,x2,y2):
     deltaX = x2 - x1
     deltaY = y2 - y1
     return math.atan2(deltaY, deltaX)
-\end{python}
+    \end{python}    
+    \item It's now possible to calculate the shortest way to turn the robot (left/right), so the robots facing angle goes towards the angle between the robot and the waypoint. This can be done with this python function: \begin{python}
+def shortestWayBetweenTwoAngles(angle1, angle2): 
+    angle1 = float(angle1)
+    angle2 = float(angle2)
+
+    if angle1 < angle2 and angle2 - angle1 <= math.pi:
+        return 1.0
+    if angle1 < angle2 and angle2 - angle1 > math.pi:
+        return -1.0
+    if angle1 > angle2 and angle1 - angle2 <= math.pi:
+        return -1.0
+    if angle1 > angle2 and angle1 - angle2 > math.pi:
+        return 1.0
+
+    return 0.0
+    \end{python} The return value of this function is 1 if the most efficient way to turn is right, -1 for left and 0 if the angles are the same. 
+    \item 
+\end{enumerate}
 The
 \\\\
 \textbf{Results of the simulation} \\
