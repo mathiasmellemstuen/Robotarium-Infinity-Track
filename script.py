@@ -104,7 +104,7 @@ def shortestWayBetweenTwoAngles(angle1, angle2):
         return -1.0
     if angle1 > angle2 and angle1 - angle2 <= math.pi:
         return -1.0
-    if angle1 > angle2 and angle1 - angle2 > math.pi: 
+    if angle1 > angle2 and angle1 - angle2 > math.pi:
         return 1.0
 
     return 0.0
