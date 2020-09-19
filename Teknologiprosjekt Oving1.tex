@@ -107,7 +107,7 @@ The end results after doing this looks like this.
 . \\
 \textbf{Motion control algorithm} \\
 There is many ways of approaching this problem. It can be done relativly simple since we are not considereing collision detection and the robot does always have track of it's position and it's current waypoint position.
-Because of this, we only need an algorithm that calculates vertical and algular velocity of the robot so the robot moves towards the current waypoint. When the robot then has approached a acceptable distance the the current waypoint, then change to the next waypoint in the path and run the algorithm again. 
+Because of this, we only need an algorithm that calculates vertical and angular velocity of the robot so the robot moves towards the current waypoint. When the robot then has approached an acceptable distance to the current waypoint, then change to the next waypoint in the path and run the algorithm again. 
 This can be represented in an algorithm like this: 
 \begin{enumerate}
     \item When the robot is within an acceptable distance to the current waypoint (n), change the current waypoint to (n+1).
@@ -141,13 +141,46 @@ def shortestWayBetweenTwoAngles(angle1, angle2):
 
     return 0.0
     \end{python} The return value of this function is 1 if the most efficient way to turn is right, -1 for left and 0 if the angles are the same. 
-    \item 
+    \item Calculate the robots next velocities based on how far away it's from the current waypoint and how far off it's angle is. 
+    \begin{python}
+def calculateNextVelocity(position):
+    
+    global currentTarget
+
+    targetX = path[0][currentTarget]
+    targetY = path[1][currentTarget]
+
+    distanceToTarget = calculateDistanceBetweenTwoPoints(targetX,targetY,position[0],position[1])    
+    
+    currentTarget = currentTarget if not (distanceToTarget < acceptableDistanceToTarget) else (currentTarget + 1) if (currentTarget is not len(path[0]) - 1) else 0
+
+    targetX = path[0][currentTarget]
+    targetY = path[1][currentTarget]
+
+    targetAngle = convertAngle0To2Pi(calculateAngleBetweenPoints(position[0], position[1], targetX, targetY))
+    angle = convertAngle0To2Pi(position[2])
+
+    speed = maxSpeed - calculateSpeedModifierBasedOnAngleDifferenceAndDistance(angle, targetAngle, distanceToTarget)
+    if speed < 0: speed = 0
+    
+    setVelocity(speed,0 if calculateAngleDifference(angle, targetAngle) < acceptableAngleError else turningSpeed * shortestWayBetweenTwoAngles(angle, targetAngle))
+    \end{python}
+    \item The velocity can then be applied to the robot. These 5 steps will be repeated until the code is terminated. 
+    \begin{python}
+def robotLogic():
+    position = r.get_poses()
+    calculateNextVelocity(position)
+    v = velocity
+    v.shape = (2,1)
+    r.set_velocities(numberOfRobots, v)
+    r.step()
+
+while running: robotLogic()
+    \end{python}
 \end{enumerate}
-The
-\\\\
 \textbf{Results of the simulation} \\
-...
+The robot worked very good in the simulation. It didn't overshoot much and manages to stay on the red line at all times while driving relatively fast. It manages to stay on the course by decreasing it's linear velocity if the turn becomes too steep. It is possible that it could be faster if for instance lookahead was implemented in the algorithm. Then it could take more than just the current waypoint into consideration, and that would probably optimize it more.
 \\\\
 \textbf{Results of the algorithm deployed on a real robot} \\
-...
+The code worked while being deployed on a real robot, but the quality was worse than in the simulation. It did move slower around the course and it had to completely stop sometimes to turn to correct it's angular error.
 \end{document}
